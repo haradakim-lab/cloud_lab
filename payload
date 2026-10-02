@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구름패스(GoormPass) - 구독 계약 및 정기결제</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Roboto+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <!-- 주소찾기 API (카카오 우편번호 서비스) -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <style>
+        :root {
+            --bg: #F4F7F6;
+            --panel: #FFFFFF;
+            --navy: #143647;
+            --teal: #1C8C7E;
+            --teal-soft: #E4F3EF;
+            --coral: #F1804C;
+            --coral-soft: #FDEBE1;
+            --ink: #2C3E50;
+            --ink-soft: #7F8C8D;
+            --line: #E2E8F0;
+            --radius: 12px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--ink); font-family: 'Noto Sans KR', sans-serif; line-height: 1.5; padding-bottom: 50px; }
+        
+        .app-container { max-width: 600px; margin: 0 auto; background: var(--panel); min-height: 100vh; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        
+        header { background: var(--navy); color: #fff; padding: 20px; text-align: center; }
+        header h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+        header p { font-size: 12px; color: #A0B2BC; }
+        
+        .step-indicator { display: flex; justify-content: space-between; padding: 16px 20px; background: #fff; border-bottom: 1px solid var(--line); }
+        .step { font-size: 11px; font-weight: 600; color: var(--ink-soft); position: relative; }
+        .step.active { color: var(--teal); }
+        .step.active::after { content: ''; position: absolute; bottom: -17px; left: 0; width: 100%; height: 2px; background: var(--teal); }
+
+        .content { padding: 20px; }
+        .step-content { display: none; }
+        .step-content.active { display: block; }
+
+        h2.section-title { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+        input[type="text"], input[type="tel"], input[type="date"], select {
+            width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; background: #fff;
+        }
+        input:focus, select:focus { border-color: var(--teal); }
+        
+        .product-preview-card {
+            background: var(--teal-soft);
+            border: 1.5px solid var(--teal);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .product-preview-card h3 { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+        .product-preview-card .price-tag { font-size: 14px; font-weight: 700; color: var(--coral); margin-bottom: 8px; }
+        .product-preview-card ul { padding-left: 16px; font-size: 12px; color: var(--ink); line-height: 1.5; }
+
+        .radio-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .radio-tabs-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+        .radio-tab { border: 1.5px solid var(--line); border-radius: 8px; padding: 12px 6px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; background: #fff; }
+        .radio-tab.active { border-color: var(--teal); background: var(--teal-soft); color: var(--teal); }
+
+        /* 약관 축약형 박스 및 우측 끝 원문 보기 버튼 레이아웃 */
+        .terms-box { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #FAFAFA; margin-bottom: 8px; font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+        .terms-item-wrap { margin-bottom: 16px; }
+        .checkbox-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; flex: 1; }
+        .checkbox-group input { width: 18px; height: 18px; accent-color: var(--teal); flex: none; }
+        .badge-required { color: #E74C3C; font-weight: 700; margin-right: 4px; }
+        .badge-optional { color: #2980B9; font-weight: 700; margin-right: 4px; }
+        
+        .view-term-btn { font-size: 11px; background: #E2E8F0; border: none; padding: 5px 9px; border-radius: 6px; cursor: pointer; color: var(--navy); font-weight: 600; flex: none; }
+        .view-term-btn:hover { background: var(--teal); color: #fff; }
+
+        /* 약관 원문 팝업 모달 스타일 */
+        #termModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; justify-content: center; align-items: center; }
+        .modal-content { background: #fff; width: 90%; max-width: 500px; max-height: 80vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { background: var(--navy); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 700; }
+        .modal-body { padding: 16px; overflow-y: auto; font-size: 12.5px; line-height: 1.6; color: var(--ink); white-space: pre-line; }
+        .modal-footer { padding: 12px 16px; background: #F8FAFC; border-top: 1px solid var(--line); text-align: right; }
+        .modal-close-btn { background: var(--teal); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+        .notice-box { background: #FFF8F3; border: 1.5px solid #FBD5BE; border-radius: 10px; padding: 14px; font-size: 11.5px; color: #7B4B28; margin-bottom: 16px; line-height: 1.6; word-break: keep-all; }
+        .notice-box b { color: #C0392B; display: block; margin-bottom: 6px; font-size: 12px; }
+        .notice-line { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #FBD5BE; padding: 3px 0; }
+
+        .signature-pad-wrap { border: 1.5px dashed var(--line); border-radius: 8px; background: #fff; height: 160px; position: relative; margin-bottom: 10px; }
+        canvas { width: 100%; height: 100%; touch-action: none; }
+        .clear-btn { font-size: 11px; color: var(--ink-soft); background: none; border: none; cursor: pointer; text-decoration: underline; float: right; margin-bottom: 10px; }
+
+        .btn-wrap { display: flex; gap: 10px; margin-top: 24px; }
+        button.btn { flex: 1; padding: 14px; border-radius: 10px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; }
+        button.btn-prev { background: #E2E8F0; color: var(--navy); }
+        button.btn-next { background: var(--teal); color: #fff; }
+        
+        .summary-card { background: #F8FAFC; border: 1px solid var(--line); border-radius: 8px; padding: 14px; font-size: 13px; margin-bottom: 16px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .summary-row span:first-child { color: var(--ink-soft); }
+        .summary-row span:last-child { font-weight: 600; color: var(--navy); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>구름패스 (GoormPass)</h1>
+        <p>반려동물 토탈 라이프케어 구독서비스 및 정기결제 신청</p>
+    </header>
+
+    <div class="step-indicator">
+        <div class="step active" id="indicator-1">1. 상품·반려동물</div>
+        <div class="step" id="indicator-2">2. 계약자 정보</div>
+        <div class="step" id="indicator-3">3. 약관 및 동의</div>
+        <div class="step" id="indicator-4">4. 결제 정보</div>
+        <div class="step" id="indicator-5">5. 최종 서명</div>
+    </div>
+
+    <div class="content">
+        <!-- STEP 1 -->
+        <div class="step-content active" id="step-1">
+            <h2 class="section-title">가입할 구독 상품을 선택해 주세요</h2>
+            
+            <div class="form-group">
+                <select id="productSelect" onchange="handleProductChange(this)">
+                    <option value="" disabled selected>--구독 상품 선택--</option>
+                    <option value="첫걸음동행" data-price="890000" data-base-monthly="14800" data-desc="기본 건강검진(1회) + 기본 무지개케어 + 소변검사키트 + 제휴몰 쿠폰 3만 원">구름채 첫걸음동행 (890,000원)</option>
+                    <option value="일상동행" data-price="1790000" data-base-monthly="21300" data-desc="기본 건강검진(2회) + 품격 무지개케어 + 3D피규어(5cm) + 제휴몰 쿠폰 5만 원">구름채 일상동행 (1,790,000원)</option>
+                    <option value="든든동행" data-price="2229000" data-base-monthly="26500" data-desc="플러스 건강검진 + 기본 무지개케어 + 3D피규어(5cm) + 제휴몰 쿠폰 7만 원">구름채 든든동행 (2,229,000원)</option>
+                    <option value="평생동행" data-price="2890000" data-base-monthly="30000" data-desc="스페셜 건강검진 + 스페셜 무지개케어(장례비지원) + 3D피규어(7cm)">구름채 평생동행 (2,890,000원)</option>
+                    <option value="영원동행" data-price="3890000" data-base-monthly="32400" data-desc="프리미엄 건강검진 + 프리미엄 무지개케어 + 3D피규어(7cm) + 소변/모발검사">구름채 영원동행 (3,890,000원)</option>
+                </select>
+            </div>
+
+            <!-- 실시간 상품 정보 요약 박스 -->
+            <div class="product-preview-card" id="productPreviewBox">
+                <h3 id="previewTitle">구름채 첫걸음동행</h3>
+                <div class="price-tag" id="previewPrice">총 890,000원</div>
+                <ul id="previewDescList">
+                    <li>상품 내용 로딩중...</li>
+                </ul>
+            </div>
+
+            <!-- 할인 선택 항목 -->
+            <div style="background:#F8FAFC; border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:16px;">
+                <label style="margin-bottom:10px; color:var(--teal);">🏷 추가 할인 적용 항목</label>
+                <div class="checkbox-group" style="margin-bottom:8px;">
+                    <input type="checkbox" id="discPromo" onchange="calculateSummary()"> 
+                    <span>현장 프로모션 할인 60% 적용 (1년차 월납입금 한정)</span>
+                </div>
+                <div class="checkbox-group" style="margin-bottom:8px;">
+                    <input type="checkbox" id="discAnimal" onchange="calculateSummary()"> 
+                    <span>동물등록번호 기재 할인 (전체 기간 1% 추가 할인)</span>
+                </div>
+                <div class="form-group" style="margin-bottom:0; margin-top:8px;">
+                    <label style="font-size:12px; font-weight:normal;">다견/묘 동시 가입 마리 수 (1마리: 0%, 2마리: 2%, 3마리: 3%...)</label>
+                    <select id="petCountSelect" onchange="calculateSummary()" style="padding:8px; font-size:13px;">
+                        <option value="1">1마리 (추가할인 없음)</option>
+                        <option value="2">2마리 (2% 할인)</option>
+                        <option value="3">3마리 (3% 할인)</option>
+                        <option value="4">4마리 (4% 할인)</option>
+                        <option value="5">5마리 이상 (5% 할인)</option>
+                    </select>
+                </div>
+            </div>
+
+            <h2 class="section-title">반려동물 정보 입력 (앱 맞춤 프로필)</h2>
+            <div class="form-group">
+                <label>반려동물 종류 및 성별</label>
+                <div class="radio-tabs">
+                    <div class="radio-tab active" onclick="setPetType(this, '개')">강아지 (개)</div>
+                    <div class="radio-tab" onclick="setPetType(this, '고양이')">고양이</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>반려동물 이름 / 나이 / 등록번호</label>
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px; margin-bottom:8px;">
+                    <input type="text" id="petName" placeholder="반려동물 이름">
+                    <input type="tel" id="petAge" placeholder="나이(살)">
+                </div>
+                <input type="text" id="petRegNo" placeholder="반려동물 등록번호 (동물등록 할인 시 필수 기재)">
+            </div>
+            <div class="btn-wrap">
+                <button class="btn btn-next" onclick="validateStep1()">다음 단계로</button>
+            </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step-content" id="step-2">
+            <h2 class="section-title">계약자(보호자) 기본정보</h2>
+            <div class="form-group">
+                <label>계약자 성명</label>
+                <input type="text" id="contractorName" placeholder="실명 입력">
+            </div>
+            <div class="form-group">
+                <label>생년월일 (6자리) 및 휴대전화</label>
+                <div style="display:grid; grid-template-columns: 1fr 2fr; gap:8px;">
+                    <input type="tel" maxlength="6" placeholder="YYMMDD">
+                    <input type="tel" placeholder="- 없이 번호 입력">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>자택 주소</label>
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:8px; margin-bottom:6px;">
+                    <input type="text" id="postalCode" placeholder="우편번호" readonly>
+                    <button type="button" class="btn" style="padding:10px; font-size:12px; margin-top:0;" onclick="execDaumPostcode()">주소 찾기</button>
+                </div>
+                <input type="text" id="baseAddress" placeholder="기본 주소" readonly style="margin-bottom:6px;">
+                <input type="text" id="detailAddress" placeholder="상세 주소를 입력해 주세요">
+            </div>
+            <div class="btn-wrap">
+                <button class="btn btn-prev" onclick="nextStep(1)">이전</button>
+                <button class="btn btn-next" onclick="nextStep(3)">다음 단계로</button>
+            </div>
+        </div>
+
+        <!-- STEP 3 (앱 최적화 이용약관 및 푸시 동의 반영) -->
+        <div class="step-content" id="step-3">
+            <h2 class="section-title">필수 약관 및 앱 환경 동의사항 확인</h2>
+            
+            <div class="terms-item-wrap">
+                <div class="terms-box">
+                    [구름패스 앱 구독계약 및 하나은행 예치 안내]<br>
+                    1. 회사는 가입 회원 납입금의 50%를 하나은행에 안전하게 예치합니다.<br>
+                    2. 앱 전용 정기구독 자동결제, 중도해지 환급률(1~12회차 0%) 및 14일 이내 청약철회 규정이 적용됩니다.
+                </div>
+                <div class="checkbox-row">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="term1">
+                        <span><b class="badge-required">(필수)</b> 구름패스 서비스 이용약관 및 은행 안전예치에 동의합니다.</span>
+                    </label>
+                    <button type="button" class="view-term-btn" onclick="openTermModal('contract')">약관 원문 보기</button>
+                </div>
+            </div>
+
+            <div class="terms-item-wrap">
+                <div class="terms-box">
+                    [개인정보 수집·이용 및 제3자 제공 동의]<br>
+                    - 수집목적: 앱 서비스 제공, 본인확인, GBTI 검사결과 연동, 카드/계좌 정기결제 처리<br>
+                    - 제공대상: 금융결제원, TaxCMS, 코어파이낸셜, 하나은행
+                </div>
+                <div class="checkbox-row">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="term2">
+                        <span><b class="badge-required">(필수)</b> 개인정보 수집·이용 및 제3자 제공에 동의합니다.</span>
+                    </label>
+                    <button type="button" class="view-term-btn" onclick="openTermModal('privacy')">약관 원문 보기</button>
+                </div>
+            </div>
+
+            <div class="terms-item-wrap">
+                <div class="terms-box">
+                    [앱 푸시 알림 및 야간 마케팅 수신 안내 (선택)]<br>
+                    - 혜택 안내, GBTI 결과 갱신 알림, 이벤트 정보 수신 (야간 오후 9시~오전 8시 알림 포함)
+                </div>
+                <div class="checkbox-row">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="term3">
+                        <span><b class="badge-optional">(선택)</b> 앱 푸시 알림 및 야간 마케팅 정보 수신에 동의합니다.</span>
+                    </label>
+                    <button type="button" class="view-term-btn" onclick="openTermModal('marketing')">약관 원문 보기</button>
+                </div>
+            </div>
+
+            <div class="btn-wrap">
+                <button class="btn btn-prev" onclick="nextStep(2)">이전</button>
+                <button class="btn btn-next" onclick="validateStep3()">다음 단계로</button>
+            </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="step-content" id="step-4">
+            <h2 class="section-title">납입 및 정기결제수단 선택</h2>
+            <div class="radio-tabs" style="margin-bottom:14px;">
+                <div class="radio-tab active" id="pay-card" onclick="setPayMethod('card')">신용카드 자동결제</div>
+                <div class="radio-tab" id="pay-cms" onclick="setPayMethod('cms')">계좌 자동이체</div>
+            </div>
+
+            <!-- 카드 결제 전용 주의사항 안내박스 -->
+            <div class="notice-box" id="notice-card">
+                <b>➤ 카드 자동이체 신청 전 주의사항 안내</b>
+                1. 동물등록번호 기재 시 추가 1% 할인혜택이 적용됩니다.<br>
+                2. 신청인(계약자)과 카드 명의자가 다른 경우, 하단에 결제자(카드주)의 서명이 필요합니다.<br>
+                3. 앱 전자서명 완료와 동시에 초회분 납입금이 즉시 결제됩니다.
+            </div>
+
+            <!-- CMS 계좌이체 전용 주의사항 안내박스 -->
+            <div class="notice-box" id="notice-cms" style="display:none;">
+                <b>➤ 계좌 자동이체 신청 전 주의사항 안내</b>
+                1. 동물등록번호 기재 시 추가 1% 할인혜택이 적용됩니다.<br>
+                2. 신청인(계약자)과 예금주가 다른 경우, 하단에 결제자(예금주)의 서명이 필요합니다.<br>
+                3. 금융사고 예방을 위한 출금동의 반영에 약 2일이 소요될 수 있습니다.
+            </div>
+
+            <!-- 카드 결제 폼 -->
+            <div id="card-form">
+                <div class="form-group">
+                    <label>신용카드 번호 (16자리)</label>
+                    <input type="tel" maxlength="19" placeholder="1234-5678-9012-3456">
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                    <div class="form-group">
+                        <label>유효기간 (MM/YY)</label>
+                        <input type="tel" maxlength="5" placeholder="MM/YY">
+                    </div>
+                    <div class="form-group">
+                        <label>비밀번호 앞 2자리</label>
+                        <input type="password" maxlength="2" placeholder="**">
+                    </div>
+                </div>
+            </div>
+
+            <!-- CMS 계좌이체 폼 -->
+            <div id="cms-form" style="display:none;">
+                <div class="form-group">
+                    <label>금융기관명 (은행)</label>
+                    <select>
+                        <option value="" disabled selected>-- 은행 선택 --</option>
+                        <option>토스뱅크</option>
+                        <option>카카오뱅크</option>
+                        <option>케이뱅크</option>
+                        <option>하나은행</option>
+                        <option>국민은행</option>
+                        <option>신한은행</option>
+                        <option>우리은행</option>
+                        <option>농협은행</option>
+                        <option>IBK기업은행</option>
+                        <option>SC제일은행</option>
+                        <option>부산은행</option>
+                        <option>대구은행</option>
+                        <option>광주은행</option>
+                        <option>전북은행</option>
+                        <option>경남은행</option>
+                        <option>수협은행</option>
+                        <option>우체국</option>
+                        <option>새마을금고</option>
+                        <option>신협</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>출금 계좌번호</label>
+                    <input type="tel" placeholder="- 없이 계좌번호 입력">
+                </div>
+            </div>
+
+            <!-- 월 납부일 선택 -->
+            <div class="form-group" style="margin-top:10px;">
+                <label>월 납부일 선택</label>
+                <div class="radio-tabs-3">
+                    <div class="radio-tab active" onclick="setPayDate(this, '5일')">매월 5일</div>
+                    <div class="radio-tab" onclick="setPayDate(this, '15일')">매월 15일</div>
+                    <div class="radio-tab" onclick="setPayDate(this, '25일')">매월 25일</div>
+                </div>
+            </div>
+
+            <div class="btn-wrap">
+                <button class="btn btn-prev" onclick="nextStep(3)">이전</button>
+                <button class="btn btn-next" onclick="nextStep(5)">서명 단계로</button>
+            </div>
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="step-content" id="step-5">
+            <h2 class="section-title">최종 확인 및 전자서명</h2>
+            <div class="summary-card">
+                <div class="summary-row"><span>가입 상품</span><span id="sum-product">선택 안 됨</span></div>
+                <div class="summary-row"><span>기본 상품가액</span><span id="sum-price">0원</span></div>
+                <div class="summary-row"><span>1년차 월납입금(할인적용)</span><span id="sum-monthly-discounted" style="font-weight:700; color:var(--teal);">0원 / 월</span></div>
+                <div class="summary-row"><span>적용 할인내역</span><span id="sum-discount" style="font-size:11.5px; color:var(--ink-soft);">할인 없음</span></div>
+                <div class="summary-row" style="border-top:1px dashed var(--line); padding-top:6px; margin-top:6px;">
+                    <span style="font-weight:700; color:var(--navy);">최종 적용 금액</span>
+                    <span id="sum-final-price" style="font-weight:700; color:var(--teal); font-size:15px;">0원</span>
+                </div>
+                <div class="summary-row" style="margin-top:6px;"><span>결제 방식</span><span id="sum-method">신용카드 자동결제</span></div>
+                <div class="summary-row"><span>매월 납부일</span><span id="sum-paydate">매월 5일</span></div>
+            </div>
+
+            <p style="font-size:12px; font-weight:600; color:var(--navy); margin-bottom:6px;">아래 빈칸에 서명해 주세요</p>
+            <button class="clear-btn" onclick="clearSign()">서명 지우기</button>
+            <div class="signature-pad-wrap">
+                <canvas id="signCanvas"></canvas>
+            </div>
+
+            <div class="btn-wrap">
+                <button class="btn btn-prev" onclick="nextStep(4)">이전</button>
+                <button class="btn btn-next" style="background:#138354;" onclick="completeContract()">계약 및 결제 완료</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 약관 원문 보기 팝업 모달 -->
+<div id="termModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span id="modalTitle">약관 원문 보기</span>
+            <button type="button" style="background:none; border:none; color:#fff; font-size:16px; cursor:pointer;" onclick="closeTermModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalText">
+            약관 내용 로딩 중...
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-close-btn" onclick="closeTermModal()">닫기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentData = {
+        productName: "",
+        basePrice: 0,
+        baseMonthly: 0,
+        finalPrice: 0,
+        discountedMonthly: 0,
+        discountText: "할인 없음",
+        paymentType: "신용카드 자동결제",
+        payDateText: "매월 5일"
+    };
+
+    // 앱 최적화 약관 원문 딕셔너리 (자체 상품 판매 제외, 오직 구독 및 정기결제 중심)
+    const termTexts = {
+        contract: `[구름패스 서비스 이용약관 전문]
+        제1조 (목적) 본 약관은 (주)구름채홀딩스가 제공하는 반려동물 토탈 라이프케어 구독 서비스 '구름패스' 앱 이용 및 정기결제 계약과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다. (단, 본 앱은 자체 일반 상품 판매를 진행하지 않으며 오직 펫토탈케어 구독 및 정기납입 계약만을 제공합니다.)
+        제3조 (앱 회원가입 및 이용계약) 가입 시 약관의 주요 내용을 고지하며, 앱 내 전자서명 또는 인증 절차를 통해 효력이 발생합니다.
+        제5조 (청약철회권) 회원은 구독 증서 및 약관을 교부받은 날부터 14일 이내에 청약철회를 요청할 수 있으며, 회사는 5영업일 이내에 납입금을 반환합니다.
+        제6조 (정기결제 및 납입방법) 회원은 신용카드 자동결제 또는 CMS 계좌이체 방식을 통해 매월 약정한 기일에 구독료를 납부하여야 합니다.
+        제16조 (중도해지 및 해약환급금) 중도해지 시 회차별 해약환급률표에 따릅니다. (초기 1~12회차 해약환급률 0%) 만기 완납 시 기납입금 100%가 환급됩니다.
+        [납입금 안전 예치 제도] 회사는 회원의 납입금 안전 보장을 위하여 시중 제휴 금융기관(현재 하나은행 등)을 통한 안전 예치 제도를 운영하고 있으며, 이를 통해 고객의 자산을 안전하게 보호합니다.`,
+        
+        privacy: `[개인정보 수집·이용 및 제3자 제공 동의서 (앱 최적화)]
+        1. 개인정보 수집 및 이용목적 (필수)
+        - 수집항목: 성명, 생년월일, 휴대전화번호, 자택주소, 반려동물 프로필(이름, 품종, 등록번호, GBTI 결과), 신용카드번호 또는 은행계좌정보
+        - 수집목적: 구름패스 앱 구독 서비스 제공, 본인확인, 정기결제(CMS/카드) 처리, 고객상담 및 불만처리
+        - 보유기간: 회원 탈퇴 또는 계약 종료 후 5년까지 (관계법령에 따름)
+        2. 개인정보 제3자 제공 동의 (필수)
+        - 제공대상: 금융결제원, TaxCMS, 코어파이낸셜, 하나은행
+        - 제공목적: CMS 출금이체 및 신용카드 자동정기결제 승인 및 처리`,
+
+        marketing: `[앱 푸시 알림 및 야간 마케팅 수신 동의 (선택)]
+        - 수신목적: 구름패스 맞춤 케어 정보, GBTI 분석 갱신 알림, 할인 이벤트 및 프로모션 안내
+        - 발송방법: 구름패스 앱 푸시(Push) 알림 (야간 시간대인 오후 9시 ~ 오전 8시 광고성 푸시 알림 수신 포함)
+        - 철회 방법: 회원은 언제든지 앱 내 [설정 > 알림 설정]에서 수신 동의를 철회할 수 있습니다.`
+    };
+
+    function openTermModal(type) {
+        let titleMap = {
+            'contract': '구름패스 앱 구독서비스 이용약관',
+            'privacy': '개인정보 수집·이용 및 제3자 제공 동의서',
+            'marketing': '앱 푸시 알림 및 야간 마케팅 수신 동의'
+        };
+        document.getElementById('modalTitle').innerText = titleMap[type];
+        document.getElementById('modalText').innerText = termTexts[type];
+        document.getElementById('termModal').style.display = 'flex';
+    }
+
+    function closeTermModal() {
+        document.getElementById('termModal').style.display = 'none';
+    }
+
+    function nextStep(step) {
+        document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+        document.getElementById('step-' + step).classList.add('active');
+        
+        document.querySelectorAll('.step').forEach((el, idx) => {
+            if(idx < step) el.classList.add('active');
+            else el.classList.remove('active');
+        });
+        window.scrollTo(0,0);
+        if(step === 5) initCanvas();
+    }
+
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                document.getElementById('postalCode').value = data.zonecode;
+                document.getElementById('baseAddress').value = data.roadAddress || data.jibunAddress;
+                document.getElementById('detailAddress').focus();
+            }
+        }).open();
+    }
+
+    function handleProductChange(selectElement) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        if(!selectedOption.value) return;
+
+        currentData.productName = "구름채 " + selectedOption.value;
+        currentData.basePrice = parseInt(selectedOption.getAttribute('data-price'));
+        currentData.baseMonthly = parseInt(selectedOption.getAttribute('data-base-monthly'));
+
+        document.getElementById('productPreviewBox').style.display = 'block';
+        document.getElementById('previewTitle').innerText = currentData.productName;
+        document.getElementById('previewPrice').innerText = `총 ${currentData.basePrice.toLocaleString()}원`;
+        
+        document.getElementById('previewDescList').innerHTML = `
+            <li>${selectedOption.getAttribute('data-desc')}</li>
+            <li>정상 월 납입금 약 ${currentData.baseMonthly.toLocaleString()}원 상당</li>
+            <li>만기 완납 시 기납입금 100% 환급 적용</li>
+        `;
+
+        calculateSummary();
+    }
+
+    function calculateSummary() {
+        if(!currentData.basePrice) return;
+
+        let price = currentData.basePrice;
+        let baseMonthly = currentData.baseMonthly;
+        let discounts = [];
+
+        let petCount = parseInt(document.getElementById('petCountSelect').value);
+        let multiDiscountRate = 0;
+        if(petCount >= 2) {
+            multiDiscountRate = petCount;
+            discounts.push(`다견 ${petCount}마리 (${multiDiscountRate}%)`);
+        }
+
+        let animalDisc = document.getElementById('discAnimal').checked;
+        if(animalDisc) {
+            discounts.push("동물등록 (1%)");
+        }
+
+        let promoDisc = document.getElementById('discPromo').checked;
+        if(promoDisc) {
+            discounts.push("현장 프로모션 60%(1년차 한정)");
+        }
+
+        let totalMultiplier = 1.0;
+        if(animalDisc) totalMultiplier *= 0.99;
+        if(multiDiscountRate > 0) totalMultiplier *= (1 - (multiDiscountRate / 100));
+        
+        let finalPriceCalculated = Math.round(price * totalMultiplier);
+        let discountedMonthlyVal = Math.round(baseMonthly * totalMultiplier);
+
+        if(promoDisc) {
+            discountedMonthlyVal = Math.round(baseMonthly * (1 - 0.6));
+            let annualBase = baseMonthly * 12;
+            let promoSave = Math.round(annualBase * 0.6);
+            finalPriceCalculated -= promoSave;
+        }
+
+        currentData.finalPrice = finalPriceCalculated;
+        currentData.discountedMonthly = discountedMonthlyVal;
+        currentData.discountText = discounts.length > 0 ? discounts.join(" + ") : "할인 없음";
+
+        document.getElementById('sum-product').innerText = currentData.productName;
+        document.getElementById('sum-price').innerText = currentData.basePrice.toLocaleString() + "원";
+        document.getElementById('sum-monthly-discounted').innerText = currentData.discountedMonthly.toLocaleString() + "원 / 월";
+        document.getElementById('sum-discount').innerText = currentData.discountText;
+        document.getElementById('sum-final-price').innerText = currentData.finalPrice.toLocaleString() + "원";
+    }
+
+    function validateStep1() {
+        const select = document.getElementById('productSelect');
+        if(!select.value) {
+            alert('가입하실 구독 상품을 선택해 주세요.');
+            return;
+        }
+        nextStep(2);
+    }
+
+    function setPetType(el, type) {
+        el.parentElement.querySelectorAll('.radio-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function setPayMethod(type) {
+        document.getElementById('pay-card').classList.toggle('active', type === 'card');
+        document.getElementById('pay-cms').classList.toggle('active', type === 'cms');
+        document.getElementById('card-form').style.display = type === 'card' ? 'block' : 'none';
+        document.getElementById('cms-form').style.display = type === 'cms' ? 'block' : 'none';
+        
+        document.getElementById('notice-card').style.display = type === 'card' ? 'block' : 'none';
+        document.getElementById('notice-cms').style.display = type === 'cms' ? 'block' : 'none';
+
+        currentData.paymentType = type === 'card' ? '신용카드 자동결제' : '계좌 자동이체';
+        document.getElementById('sum-method').innerText = currentData.paymentType;
+    }
+
+    function setPayDate(el, dateText) {
+        el.parentElement.querySelectorAll('.radio-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        currentData.payDateText = "매월 " + dateText;
+        document.getElementById('sum-paydate').innerText = currentData.payDateText;
+    }
+
+    function validateStep3() {
+        if(!document.getElementById('term1').checked || !document.getElementById('term2').checked) {
+            alert('필수 약관 및 개인정보 제공에 모두 동의해 주세요.');
+            return;
+        }
+        nextStep(4);
+    }
+
+    let canvas, ctx, isDrawing = false;
+    function initCanvas() {
+        canvas = document.getElementById('signCanvas');
+        ctx = canvas.getContext('2d');
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        
+        ctx.strokeStyle = "#143647";
+        ctx.lineWidth = 2.5;
+        ctx.lineCap = "round";
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('touchstart', startDraw);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDraw);
+    }
+
+    function getPosition(e) {
+        const rect = canvas.getBoundingClientRect();
+        let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function startDraw(e) {
+        isDrawing = true;
+        const pos = getPosition(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        e.preventDefault();
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        const pos = getPosition(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        e.preventDefault();
+    }
+
+    function stopDraw() { isDrawing = false; }
+    function clearSign() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+    function completeContract() {
+        alert('구름패스 구독 계약 및 정기결제 신청이 완료되었습니다.');
+        location.reload();
+    }
+</script>
+
+</body>
+</html>
