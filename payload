@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>구름패스(GoormPass) - 구독 계약 및 정기결제</title>
+    <title>구름채 펫 토탈 라이프케어 - 구독 계약 및 결제</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Roboto+Mono:wght@500;600&display=swap" rel="stylesheet">
     <!-- 주소찾기 API (카카오 우편번호 서비스) -->
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
@@ -65,19 +65,16 @@
         .radio-tab { border: 1.5px solid var(--line); border-radius: 8px; padding: 12px 6px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; background: #fff; }
         .radio-tab.active { border-color: var(--teal); background: var(--teal-soft); color: var(--teal); }
 
-        /* 약관 축약형 박스 및 우측 끝 원문 보기 버튼 레이아웃 */
         .terms-box { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #FAFAFA; margin-bottom: 8px; font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
         .terms-item-wrap { margin-bottom: 16px; }
         .checkbox-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
         .checkbox-group { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; flex: 1; }
         .checkbox-group input { width: 18px; height: 18px; accent-color: var(--teal); flex: none; }
         .badge-required { color: #E74C3C; font-weight: 700; margin-right: 4px; }
-        .badge-optional { color: #2980B9; font-weight: 700; margin-right: 4px; }
         
         .view-term-btn { font-size: 11px; background: #E2E8F0; border: none; padding: 5px 9px; border-radius: 6px; cursor: pointer; color: var(--navy); font-weight: 600; flex: none; }
         .view-term-btn:hover { background: var(--teal); color: #fff; }
 
-        /* 약관 원문 팝업 모달 스타일 */
         #termModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; justify-content: center; align-items: center; }
         .modal-content { background: #fff; width: 90%; max-width: 500px; max-height: 80vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
         .modal-header { background: var(--navy); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 700; }
@@ -108,8 +105,8 @@
 
 <div class="app-container">
     <header>
-        <h1>구름패스 (GoormPass)</h1>
-        <p>반려동물 토탈 라이프케어 구독서비스 및 정기결제 신청</p>
+        <h1>구름채 펫 토탈 라이프케어</h1>
+        <p>안심 구독서비스 가입 및 자동이체 신청</p>
     </header>
 
     <div class="step-indicator">
@@ -127,7 +124,7 @@
             
             <div class="form-group">
                 <select id="productSelect" onchange="handleProductChange(this)">
-                    <option value="" disabled selected>--구독 상품 선택--</option>
+                    <option value="" disabled selected>--상품 선택--</option>
                     <option value="첫걸음동행" data-price="890000" data-base-monthly="14800" data-desc="기본 건강검진(1회) + 기본 무지개케어 + 소변검사키트 + 제휴몰 쿠폰 3만 원">구름채 첫걸음동행 (890,000원)</option>
                     <option value="일상동행" data-price="1790000" data-base-monthly="21300" data-desc="기본 건강검진(2회) + 품격 무지개케어 + 3D피규어(5cm) + 제휴몰 쿠폰 5만 원">구름채 일상동행 (1,790,000원)</option>
                     <option value="든든동행" data-price="2229000" data-base-monthly="26500" data-desc="플러스 건강검진 + 기본 무지개케어 + 3D피규어(5cm) + 제휴몰 쿠폰 7만 원">구름채 든든동행 (2,229,000원)</option>
@@ -136,7 +133,6 @@
                 </select>
             </div>
 
-            <!-- 실시간 상품 정보 요약 박스 -->
             <div class="product-preview-card" id="productPreviewBox">
                 <h3 id="previewTitle">구름채 첫걸음동행</h3>
                 <div class="price-tag" id="previewPrice">총 890,000원</div>
@@ -145,7 +141,6 @@
                 </ul>
             </div>
 
-            <!-- 할인 선택 항목 -->
             <div style="background:#F8FAFC; border:1px solid var(--line); border-radius:10px; padding:14px; margin-bottom:16px;">
                 <label style="margin-bottom:10px; color:var(--teal);">🏷 추가 할인 적용 항목</label>
                 <div class="checkbox-group" style="margin-bottom:8px;">
@@ -168,7 +163,7 @@
                 </div>
             </div>
 
-            <h2 class="section-title">반려동물 정보 입력 (앱 맞춤 프로필)</h2>
+            <h2 class="section-title">반려동물 정보 입력</h2>
             <div class="form-group">
                 <label>반려동물 종류 및 성별</label>
                 <div class="radio-tabs">
@@ -218,20 +213,21 @@
             </div>
         </div>
 
-        <!-- STEP 3 (앱 최적화 이용약관 및 푸시 동의 반영) -->
+        <!-- STEP 3 -->
         <div class="step-content" id="step-3">
-            <h2 class="section-title">필수 약관 및 앱 환경 동의사항 확인</h2>
+            <h2 class="section-title">필수 약관 및 고지사항 확인</h2>
             
             <div class="terms-item-wrap">
                 <div class="terms-box">
-                    [구름패스 앱 구독계약 및 하나은행 예치 안내]<br>
-                    1. 회사는 가입 회원 납입금의 50%를 하나은행에 안전하게 예치합니다.<br>
-                    2. 앱 전용 정기구독 자동결제, 중도해지 환급률(1~12회차 0%) 및 14일 이내 청약철회 규정이 적용됩니다.
+                    [계약 주요내용 안내 요약]<br>
+                    1. 회사는 자산보호를 위해 가입회원 납입금의 50%를 은행에 안전 예치합니다.<br>
+                    2. 중도해약 시 가입 상품과 회차에 따라 해약환급금이 납입금보다 적거나 없을 수 있습니다. (1~12회차 해약환급률 0%)<br>
+                    3. 청약철회는 증서 및 약관을 받은 날부터 14일 이내 가능합니다.
                 </div>
                 <div class="checkbox-row">
                     <label class="checkbox-group">
                         <input type="checkbox" id="term1">
-                        <span><b class="badge-required">(필수)</b> 구름패스 서비스 이용약관 및 은행 안전예치에 동의합니다.</span>
+                        <span><b class="badge-required">(필수)</b> 상기 계약 주요내용 및 은행 안전 예치를 확인했습니다.</span>
                     </label>
                     <button type="button" class="view-term-btn" onclick="openTermModal('contract')">약관 원문 보기</button>
                 </div>
@@ -240,8 +236,8 @@
             <div class="terms-item-wrap">
                 <div class="terms-box">
                     [개인정보 수집·이용 및 제3자 제공 동의]<br>
-                    - 수집목적: 앱 서비스 제공, 본인확인, GBTI 검사결과 연동, 카드/계좌 정기결제 처리<br>
-                    - 제공대상: 금융결제원, TaxCMS, 코어파이낸셜, 하나은행
+                    - 수집목적: 본인확인, 구독서비스 앱 제공, CMS/카드 정기결제 처리, 기기정보 수집<br>
+                    - 제공대상: 금융결제원, TaxCMS, 코어파이낸셜, 제휴 금융기관
                 </div>
                 <div class="checkbox-row">
                     <label class="checkbox-group">
@@ -254,13 +250,14 @@
 
             <div class="terms-item-wrap">
                 <div class="terms-box">
-                    [앱 푸시 알림 및 야간 마케팅 수신 안내 (선택)]<br>
-                    - 혜택 안내, GBTI 결과 갱신 알림, 이벤트 정보 수신 (야간 오후 9시~오전 8시 알림 포함)
+                    [앱 푸시 알림 및 야간 마케팅 수신 동의 (선택)]<br>
+                    - 혜택 안내, 이벤트 정보 수신 (야간 오후 9시~오전 8시 광고성 푸시 포함)<br>
+                    - 철회 방법: 마이페이지 > 설정에서 언제든지 변경 가능
                 </div>
                 <div class="checkbox-row">
                     <label class="checkbox-group">
                         <input type="checkbox" id="term3">
-                        <span><b class="badge-optional">(선택)</b> 앱 푸시 알림 및 야간 마케팅 정보 수신에 동의합니다.</span>
+                        <span><b class="badge-required" style="color:#2980B9;">(선택)</b> 앱 푸시 알림 및 야간 마케팅 정보 수신에 동의합니다.</span>
                     </label>
                     <button type="button" class="view-term-btn" onclick="openTermModal('marketing')">약관 원문 보기</button>
                 </div>
@@ -274,29 +271,36 @@
 
         <!-- STEP 4 -->
         <div class="step-content" id="step-4">
-            <h2 class="section-title">납입 및 정기결제수단 선택</h2>
+            <h2 class="section-title">납입 및 결제수단 선택</h2>
             <div class="radio-tabs" style="margin-bottom:14px;">
                 <div class="radio-tab active" id="pay-card" onclick="setPayMethod('card')">신용카드 자동결제</div>
                 <div class="radio-tab" id="pay-cms" onclick="setPayMethod('cms')">계좌 자동이체</div>
             </div>
 
-            <!-- 카드 결제 전용 주의사항 안내박스 -->
             <div class="notice-box" id="notice-card">
                 <b>➤ 카드 자동이체 신청 전 주의사항 안내</b>
-                1. 동물등록번호 기재 시 추가 1% 할인혜택이 적용됩니다.<br>
-                2. 신청인(계약자)과 카드 명의자가 다른 경우, 하단에 결제자(카드주)의 서명이 필요합니다.<br>
-                3. 앱 전자서명 완료와 동시에 초회분 납입금이 즉시 결제됩니다.
+                1. 계약서 내 동물등록번호란에 번호 정확히 기재해주세요. (선택사항)<br>
+                2. 신청인(계약자)과 카드 결제주가 다른 경우, 결제자(카드주)의 동의가 필요합니다.<br>
+                3. 계약(전자서명)이 완료됨과 동시에 초회분 납입금이 결제됩니다.<br>
+                4. 원활한 납부를 위해 결제일 지정 시, 충분한 간격을 두시기 바랍니다.<br><br>
+                <b>➤ 계약일 구간별 추천 결제일 참고</b>
+                <div class="notice-line"><span>• 매월 1일 ~ 10일</span><span><b>5일 추천</b></span></div>
+                <div class="notice-line"><span>• 매월 11일 ~ 20일</span><span><b>15일 추천</b></span></div>
+                <div class="notice-line"><span>• 매월 21일 ~ 말일</span><span><b>25일 추천</b></span></div>
             </div>
 
-            <!-- CMS 계좌이체 전용 주의사항 안내박스 -->
             <div class="notice-box" id="notice-cms" style="display:none;">
                 <b>➤ 계좌 자동이체 신청 전 주의사항 안내</b>
-                1. 동물등록번호 기재 시 추가 1% 할인혜택이 적용됩니다.<br>
-                2. 신청인(계약자)과 예금주가 다른 경우, 하단에 결제자(예금주)의 서명이 필요합니다.<br>
-                3. 금융사고 예방을 위한 출금동의 반영에 약 2일이 소요될 수 있습니다.
+                1. 계약서 내 동물등록번호란에 번호 정확히 기재해주세요. (선택사항)<br>
+                2. 신청인(계약자)과 계좌 예금주가 다른 경우, 예금주의 동의가 필요합니다.<br>
+                3. 계약과 동시에 초회분이 납입되어야 하나, 안전 절차상 반영까지 약 2일 소요됩니다.<br>
+                4. 원활한 납부를 위해 결제일 지정 시, 충분한 간격을 두시기 바랍니다.<br><br>
+                <b>➤ 계약일 구간별 추천 결제일 참고</b>
+                <div class="notice-line"><span>• 매월 1일 ~ 10일</span><span><b>5일 추천</b></span></div>
+                <div class="notice-line"><span>• 매월 11일 ~ 20일</span><span><b>15일 추천</b></span></div>
+                <div class="notice-line"><span>• 매월 21일 ~ 말일</span><span><b>25일 추천</b></span></div>
             </div>
 
-            <!-- 카드 결제 폼 -->
             <div id="card-form">
                 <div class="form-group">
                     <label>신용카드 번호 (16자리)</label>
@@ -314,7 +318,6 @@
                 </div>
             </div>
 
-            <!-- CMS 계좌이체 폼 -->
             <div id="cms-form" style="display:none;">
                 <div class="form-group">
                     <label>금융기관명 (은행)</label>
@@ -335,7 +338,6 @@
                         <option>광주은행</option>
                         <option>전북은행</option>
                         <option>경남은행</option>
-                        <option>수협은행</option>
                         <option>우체국</option>
                         <option>새마을금고</option>
                         <option>신협</option>
@@ -347,7 +349,6 @@
                 </div>
             </div>
 
-            <!-- 월 납부일 선택 -->
             <div class="form-group" style="margin-top:10px;">
                 <label>월 납부일 선택</label>
                 <div class="radio-tabs-3">
@@ -421,34 +422,64 @@
         payDateText: "매월 5일"
     };
 
-    // 앱 최적화 약관 원문 딕셔너리 (자체 상품 판매 제외, 오직 구독 및 정기결제 중심)
     const termTexts = {
-        contract: `[구름패스 서비스 이용약관 전문]
-        제1조 (목적) 본 약관은 (주)구름채홀딩스가 제공하는 반려동물 토탈 라이프케어 구독 서비스 '구름패스' 앱 이용 및 정기결제 계약과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다. (단, 본 앱은 자체 일반 상품 판매를 진행하지 않으며 오직 펫토탈케어 구독 및 정기납입 계약만을 제공합니다.)
-        제3조 (앱 회원가입 및 이용계약) 가입 시 약관의 주요 내용을 고지하며, 앱 내 전자서명 또는 인증 절차를 통해 효력이 발생합니다.
-        제5조 (청약철회권) 회원은 구독 증서 및 약관을 교부받은 날부터 14일 이내에 청약철회를 요청할 수 있으며, 회사는 5영업일 이내에 납입금을 반환합니다.
-        제6조 (정기결제 및 납입방법) 회원은 신용카드 자동결제 또는 CMS 계좌이체 방식을 통해 매월 약정한 기일에 구독료를 납부하여야 합니다.
-        제16조 (중도해지 및 해약환급금) 중도해지 시 회차별 해약환급률표에 따릅니다. (초기 1~12회차 해약환급률 0%) 만기 완납 시 기납입금 100%가 환급됩니다.
-        [납입금 안전 예치 제도] 회사는 회원의 납입금 안전 보장을 위하여 시중 제휴 금융기관(현재 하나은행 등)을 통한 안전 예치 제도를 운영하고 있으며, 이를 통해 고객의 자산을 안전하게 보호합니다.`,
+        contract: `[구름채 펫 토탈 라이프케어 구독서비스 약관 전문]
+        제1조 (목적) 본 계약은 (주)구름채홀딩스의 펫토탈라이프케어 구독서비스 회원으로 가입한 사람이 매월 일정액의 납부의무를 지고, 회사는 회원에게 약정된 물품과 서비스를 제공하는 것을 목적으로 하며, 금전이나 금리의 지급을 대상으로 하지 않습니다.
+        제2조 (용어의 정리) 1. 구름채 펫토탈라이프케어 구독서비스(이하 '멤버십 서비스'라 한다)는 본 계약 체결 시 회사가 회원에게 제공하는 서비스를 의미합니다. 약정된 계약사항인 '케어 서비스'와 "부가 서비스" 더불어 별도로 제공되는 멤버십 제휴 서비스 혜택을 포함합니다. (별도로 제공되는 멤버십 제휴 혜택은 제휴사의 사정에 따라 변경될 수 있습니다.) 2. '케어 서비스'는 회사와 회원의 계약으로 약정된 서비스이며, 회원이 직접 반려동물의 병원일상 케어, 홈 케어, 안심동행 케어, 메모리얼 케어, 무지개 케어를 받을 수 있도록 하는 서비스를 의미합니다. 3. "부가 서비스"는 회사가 회원에게 무상으로 제공하는 서비스를 의미합니다. 4. "멤버십제휴서비스"는 회사와 제휴업체 간에 제휴된 멤버십서비스를 의미합니다.
+        제3조 (회원의 가입 및 계정 탈퇴) 1. 회사로부터 '멤버십 서비스'를 제공받을 수 있는 회원으로 가입하고자 하는 사람은 가입신청에 필요한 사항을 기재하고 기명날인 또는 서명한 후 이를 회사 또는 모집인(대리점)에게 제출하여야 하며, 회사의 동의를 얻어 '멤버십 서비스'에 가입한 가입자는 가입과 동시에 가입상품에 따른 1회 이상의 납입금을 납부하여야 회원으로서의 효력이 발생합니다. 다만, 회사는 회원가입을 신청한 고객의 신용상태에 따라 가입을 거절할 수 있습니다. 전자상거래 또는 통신매체(전화)를 통하여 가입하는 경우, 계약 전 정보제공, 계약서의 수령 여부 및 계약에 대한 고객의 동의 및 이해사실 등을 음성 녹취로 대체하므로 기명날인 또는 서명과 동일한 법적효력이 발생합니다. 2. 회사는 가입하고자 하는 사람에게 가입 신청 시 약관의 주요한 내용을 설명, 고지하여야 하며, 계약 체결 시 약관을 교부하여야 합니다. 또한, 직접 또는 모집인(대리점)을 통하여 가입자가 납입한 납입금의 영수증을 회사는 가입자에게 발급하여야 합니다. 단, 계좌이체나 카드결제 시에는 영수증을 발급한 것으로 봅니다. 3. 가입절차를 완료한 회원에 대하여 회사는 지체 없이 증서 및 약관을 교부합니다. 회원이 증서 및 약관을 분실하여 회사에 재교부를 신청한 때에는 회사는 증서 및 약관을 재발행하여 교부하고 교부에 따른 수수료는 부과하지 않습니다. 이 경우 이미 교부된 증서 및 약관은 무효가 됩니다. (※ 회원은 언제든지 앱 내 [마이페이지 > 설정 > 회원 탈퇴] 메뉴를 통해 계정 삭제 및 계약 해지를 요청할 수 있습니다.)
+        제4조 (단체회원의 계약) 1. 법인 및 기타 단체(지자체, 동물보호단체 등)의 명의로 복수의 인원이 집단으로 가입할 경우, 본 약관 제3조를 준용합니다. 2. 단체의 구성원 중 '멤버십 서비스' 대상이 되는 회원에 대한 개별적인 가입이 힘들거나, 개별적인 회원의 자격을 인정할 필요가 없을 때에는 회사는 해당 단체의 구성원에게 포괄적인 회원의 자격을 인정할 수 있습니다. 포괄적인 회원의 자격은 소속단체별로 가입 구좌 수에 따라 '멤버십 서비스'를 이용할 수 있음을 의미하며, 선택권은 소속단체장이 행사할 수 있습니다. 3. 회사는 단체의 경우 멤버십 서비스 상품을 달리 구성할 수 있습니다.
+        제5조 (청약철회권의 행사) 1. 고객은 증서 및 약관을 받은 날로부터 14일 이내에 청약 철회권을 행사할 수 있습니다. 단, 증서 및 약관을 교부받지 못하였을 경우, 계약일로부터 3개월 이내에 청약 철회권을 행사할 수 있습니다. 2. 본 조 제1항의 청약 철회 의사표시를 서면으로 하는 경우, 서면이 도달한 날에 그 효력이 발생한다. 3. 회사는 본 조 제1항과 제2항에 따라 청약을 철회한 회원에 대하여 납입금을 철회일로부터 5영업일 이내에 반환하여야 하며, 회원은 '멤버십 서비스'를 이용할 수 있는 자격을 상실합니다. 단, 회사가 5영업일 이내에 납입금을 반환하지 않을 경우, 그 다음 날부터 완제일까지 납입금에 대해 시중은행 가계대출 연체이자율로 지연이자를 지급합니다. 4. 회원이 신용카드(체크카드 포함, 이하 '카드'라 한다)로 월납입금을 납부한 경우, 결제일로부터 14일 이내에 카드 승인취소가 가능하며, 14일이 경과한 경우 현금으로 반환합니다.
+        제6조 (계약상품, 납입금, 납입방법, 납입종별) 1. 회원은 계약체결 시 상품설명서 또는 제3항의 계약상품을 선택하여 멤버십 서비스 계약을 체결합니다. 2. 회원은 이 계약에 따라 가입 시에 정한 납입금을 CMS계좌이체 방식, 신용카드 등에 의해 가입 시에 미리 약정한 기일에 납부하여야 합니다. 3. 멤버십 서비스 상품의 종류, 납입기간 및 납입금, 납입방법, 납입종별은 계약서 및 상품설명서에 따릅니다. 4. CMS계좌이체 방식에 의한 납입금은 금융결제원 CMS이용약관을 준용하고, 상품대금 연체 시 연체된 납입금은 별도 통보 없이 자동 출금할 수 있습니다. 5. CMS계좌이체를 해지하고자 하는 회원은 금융사고 방지를 위하여 회사의 지점을 방문하여 CMS계좌이체 해지신청서를 제출해야 합니다. 6. 회원은 언제든지 회사의 납입금 납부 증빙내역에 대하여 확인을 요구할 수 있으며, 회사의 납입금 납부 증빙 내역에 이의가 있는 회원은 증빙서류를 제시하여 잘못된 내역의 정정을 요구할 수 있습니다. 7. 납입금을 CMS계좌이체, 신용카드를 통하여 납부한 경우, '거래원장 또는 입금확인서'를 영수증으로 갈음할 수 있습니다. 8. 회사발행 영수증에 회사의 도장이 찍힌 수납 인영이 불분명하거나 영수 금액이 임의로 수정된 경우 등 영수증이 위·변조되었다고 상당한 의심이 되는 경우 해당 영수증은 무효처리 할 수 있습니다. 9. 계약자와 예금주가 상이한 경우, 계약자는 자동이체 등록을 위해 예금주의 동의서 또는 자동이체 동의 녹취를 제출해야 합니다.
+        제7조 (일시납입 할인) 회원이 계약 시 납입금 전액을 일시에 납부할 경우, 회사가 정한 비율로 총 납입금을 할인받을 수 있으며 할인적용 시 회원증서에 기재합니다.
+        제8조 (비용의 추가 부담) '케어 서비스' 제공 시 회원의 선택에 따라 추가 비용이 발생할 수 있습니다.
+        제9조 (잔여 납부금의 납부) 회원이 월납입금 완납 이전에 해당 케어 서비스를 제공받을 때에는 회사가 정한 해당 잔여납부금을 해당 케어 서비스 접수 시 전액 납부하여야 합니다. (무지개 케어는 사유 발생 즉시 전액 완납 필요)
+        제10조 (케어 서비스 전환 사용) 가입 후 각 해당 상품의 가입 후 기간 50% 이상 경과 및 총 납입금액 완납 조건을 모두 충족할 경우 회사에서 정한 상품으로 전환 사용할 수 있습니다.
+        제11조 (주소변경 통보의무) 주소, 연락처, 이메일 변경 시 15일 이내에 회사에 통보하여야 합니다.
+        제12조 (회원의 서비스 이용) 약정된 금액 한도 내에서 회사가 비용을 결제하거나 5영업일 이내에 지정 계좌로 페이백합니다.
+        제13조 (단체계약과 케어 서비스) 단체 대표가 체결한 경우 구성원들은 가입된 구좌 수만큼 서비스를 이용할 수 있습니다.
+        제14조 (서비스 제공지역) 회사가 정한 서비스 지역 내에서 제공하며, 서비스 불가 지역 발생 시 5영업일 이내 납입금 전액을 반환합니다.
+        제15조 (케어 서비스의 내용) 상품별 확정된 내용대로 제공하며, 단종·품절 시 동급 이상의 유사 서비스로 대체할 수 있습니다.
+        제16조 (회원의 채무불이행 효과) 월납입금 6회 이상 연체 시 회사는 서면 최고 후 14일 이내 미납 시 계약을 해지할 수 있습니다.
+        제17조 (계약의 해지 및 해약환급금) 중도해지 시 해약환급률표에 따르며, 초기 1~12회차 구간은 해약환급률 0%를 적용합니다. 만기 완납 시 100% 환급됩니다.
+        제18조 (취소 위약금) 행사 접수 후 취소 시 취소 위약금, 인건비(차량, 장묘 등), 투입 품목 실비가 발생합니다.
+        제19조 (회원지위의 양도·명의변경) 회사의 동의를 얻어 타인에게 회원 지위를 양도할 수 있습니다.
+        제20조 (계약의 종료) 상품대금 완납 후에도 케어 서비스 제공의무는 지속되며, 케어 서비스 사용 완료 시 자동으로 계약이 종료됩니다.
+        제21조 (소급할인의 제한) 가입 당시의 조건 이후 추가된 할인 혜택의 소급 적용을 요구할 수 없습니다.
+        제22조 (디지털 통합 플랫폼 앱 가입) 디지털 앱 서비스(온라인 추모관, 예약, 상품몰 등) 제공을 위해 가입 시 동의를 받아 앱 서비스에 가입시킬 수 있습니다.
+        제23조 (약관의 효력과 변경) 약관 변경 시 적용일 2개월 전에 회원에게 통지합니다.
+        제24조 (분쟁해결 및 관할법원) 합의되지 않을 경우 관계 법령 및 민사소송법상 관할 법원에 따릅니다.
         
-        privacy: `[개인정보 수집·이용 및 제3자 제공 동의서 (앱 최적화)]
-        1. 개인정보 수집 및 이용목적 (필수)
-        - 수집항목: 성명, 생년월일, 휴대전화번호, 자택주소, 반려동물 프로필(이름, 품종, 등록번호, GBTI 결과), 신용카드번호 또는 은행계좌정보
-        - 수집목적: 구름패스 앱 구독 서비스 제공, 본인확인, 정기결제(CMS/카드) 처리, 고객상담 및 불만처리
-        - 보유기간: 회원 탈퇴 또는 계약 종료 후 5년까지 (관계법령에 따름)
-        2. 개인정보 제3자 제공 동의 (필수)
-        - 제공대상: 금융결제원, TaxCMS, 코어파이낸셜, 하나은행
-        - 제공목적: CMS 출금이체 및 신용카드 자동정기결제 승인 및 처리`,
+        [부칙]
+        제1조 (시행일) 이 약관은 2026년 09월 01일부터 시행합니다.
+        제3조 (선불예치금의 투명한 관리를 위한 위·변조 방지 기술 시스템 적용) 회원의 자산 보호를 위해 멤버십 서비스 가입 회원 납입금의 50%를 시중 제휴 금융기관에 예치하며, 위·변조 방지 기술 시스템을 적용하여 자금 유용을 원천 차단하고 실시간 검증 시스템을 제공합니다.
+        
+        [회사 정보 및 고객센터]
+        - 상호명: (주)구름채홀딩스 | 대표이사: 조성길
+        - 사업자등록번호: 703-81-03390
+        - 주소: 서울시 강서구 강서로54길 49 신영빌딩 3층
+        - 고객센터: 1533-0027 | 이메일: gureumchae@gureumchae.com`,
+        
+        privacy: `[개인정보의 수집·이용 및 제3자 제공 동의서 전문]
+        1. 개인정보 수집 및 이용에 관한 동의 (필수)
+        - 수집항목: 성명, 생년월일, 성별, 전화번호, 자택주소, 전자우편주소, 은행계좌번호, 신용카드번호 및 유효기간, 동물등록번호
+        - 모바일 자동 수집 항목: 스마트폰 기기 정보(OS 버전, 모델명), 앱 푸시 토큰(Push Token), 서비스 이용 기록 및 접속 IP
+        - 수집목적: 본인 확인, 계약유지관리, 고객만족관리, 플랫폼 앱 서비스 제공, 고충처리 및 고지사항 전달
+        - 보유기간: 제공 동의일로부터 계약종료 후 5년까지 (단, 관계법령 규정에 따름)
+        2. 개인(신용)정보의 조회 및 이용에 관한 동의 (필수)
+        - 조회목적: 신용정보조회회사를 통한 본인확인 및 신용상태 조회, 계약유지관리
+        3. 개인정보 제3자 제공에 관한 동의 (필수)
+        - 제공대상: 금융결제원, TaxCMS, (주)코어파이낸셜, (주)구름채홀딩스, (주)포시에스, (주)솔컴바인, 제휴 은행
+        - 제공목적: CMS 출금이체 또는 신용카드 자동결제 서비스 제공 및 출금동의 확인, 개인정보조회`,
 
         marketing: `[앱 푸시 알림 및 야간 마케팅 수신 동의 (선택)]
-        - 수신목적: 구름패스 맞춤 케어 정보, GBTI 분석 갱신 알림, 할인 이벤트 및 프로모션 안내
-        - 발송방법: 구름패스 앱 푸시(Push) 알림 (야간 시간대인 오후 9시 ~ 오전 8시 광고성 푸시 알림 수신 포함)
-        - 철회 방법: 회원은 언제든지 앱 내 [설정 > 알림 설정]에서 수신 동의를 철회할 수 있습니다.`
+        - 수신목적: 구름채 펫토탈라이프케어 맞춤 케어 정보, 할인 이벤트 및 프로모션 안내
+        - 발송방법: 구름채 앱 푸시(Push) 알림 (야간 시간대인 오후 9시 ~ 오전 8시 광고성 푸시 알림 수신 포함)
+        - 철회 방법: 회원은 언제든지 앱 내 [마이페이지 > 설정 > 알림 설정]에서 수신 동의를 철회할 수 있습니다.`
     };
 
     function openTermModal(type) {
         let titleMap = {
-            'contract': '구름패스 앱 구독서비스 이용약관',
+            'contract': '구름채 구독서비스 이용약관 및 주요내용',
             'privacy': '개인정보 수집·이용 및 제3자 제공 동의서',
             'marketing': '앱 푸시 알림 및 야간 마케팅 수신 동의'
         };
@@ -641,7 +672,7 @@
     function clearSign() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
     function completeContract() {
-        alert('구름패스 구독 계약 및 정기결제 신청이 완료되었습니다.');
+        alert('계약이 완료 되었습니다.');
         location.reload();
     }
 </script>
